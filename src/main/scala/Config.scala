@@ -24,14 +24,20 @@ object Config {
       })
 
       h1_ohlc_folder = prop.getProperty("h1_ohlc_folder")
+      m15_ohlc_folder = prop.getProperty("m15_ohlc_folder")
       d1_ohlc_folder = prop.getProperty("d1_ohlc_folder")
+      d1_ohlc_file = prop.getProperty("d1_ohlc_file")
+      corpActionFile = prop.getProperty("corpActionFile")
 
       jdbcConnStr.foreach(println)
       jdbcUser.foreach(println)
       jdbcPwd.foreach(println)
 
       println(h1_ohlc_folder)
+      println(m15_ohlc_folder)
       println(d1_ohlc_folder)
+      println(d1_ohlc_file)
+      println(corpActionFile)
     }
     catch {
       case e: Exception =>
@@ -53,12 +59,19 @@ object Config {
   // data
   //--------------------------------------------------
   var h1_ohlc_folder = ""
+  var m15_ohlc_folder = ""
   var d1_ohlc_folder = ""
+  var d1_ohlc_file = ""
 
   //--------------------------------------------------
   // truncate data because maneki does not need that many
   //--------------------------------------------------
   var h1_req_num = 200
+  var m15_req_num = 800
   var d1_req_num = 120
 
+  //--------------------------------------------------
+  // corp action adjustment
+  //--------------------------------------------------
+  var corpActionFile = ""
 }
