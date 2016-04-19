@@ -4,8 +4,11 @@ import java.io.FileInputStream;
 import java.util.Date;
 import java.util.Properties;
 import org.joda.time.{DateTime, LocalTime}
+import org.joda.time.format.DateTimeFormat
 
 object Config {
+
+val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   def readPropFile(propFileName: String) {
 
@@ -25,9 +28,11 @@ object Config {
 
       h1_ohlc_folder = prop.getProperty("h1_ohlc_folder")
       m15_ohlc_folder = prop.getProperty("m15_ohlc_folder")
-      d1_ohlc_folder = prop.getProperty("d1_ohlc_folder")
       d1_ohlc_file = prop.getProperty("d1_ohlc_file")
+      adjByCorpAct = prop.getProperty("adjByCorpAct").toBoolean
       corpActionFile = prop.getProperty("corpActionFile")
+      adjByCorpActRatio = prop.getProperty("adjByCorpActRatio").toBoolean
+      corpActionRatioFile = prop.getProperty("corpActionRatioFile")
 
       jdbcConnStr.foreach(println)
       jdbcUser.foreach(println)
@@ -35,7 +40,6 @@ object Config {
 
       println(h1_ohlc_folder)
       println(m15_ohlc_folder)
-      println(d1_ohlc_folder)
       println(d1_ohlc_file)
       println(corpActionFile)
     }
@@ -60,7 +64,6 @@ object Config {
   //--------------------------------------------------
   var h1_ohlc_folder = ""
   var m15_ohlc_folder = ""
-  var d1_ohlc_folder = ""
   var d1_ohlc_file = ""
 
   //--------------------------------------------------
@@ -73,5 +76,13 @@ object Config {
   //--------------------------------------------------
   // corp action adjustment
   //--------------------------------------------------
+  var adjByCorpAct = false
   var corpActionFile = ""
+
+  //--------------------------------------------------
+  // corp action ratio adjustment
+  //--------------------------------------------------
+  var adjByCorpActRatio = false
+  var corpActionRatioFile = ""
+
 }

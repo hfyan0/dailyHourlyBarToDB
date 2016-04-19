@@ -24,8 +24,10 @@ object DBProcessor {
   def deleteMDDailyTable() {
     lsConn.foreach(_conn => {
       try {
-        val prep = _conn.prepareStatement("delete from market_data_daily_hk_stock")
-        prep.executeUpdate
+        val prep1 = _conn.prepareStatement("delete from market_data_daily_hk_stock")
+        prep1.executeUpdate
+        val prep2 = _conn.prepareStatement("delete from daily_hsi_price")
+        prep2.executeUpdate
       }
     })
   }
@@ -42,9 +44,13 @@ object DBProcessor {
   def deleteMDDailyTable(symbol: String) {
     lsConn.foreach(_conn => {
       try {
-        val prep = _conn.prepareStatement("delete from market_data_daily_hk_stock where instrument_id = ?")
-        prep.setString(1, symbol)
-        prep.executeUpdate
+        val prep1 = _conn.prepareStatement("delete from market_data_daily_hk_stock where instrument_id = ?")
+        prep1.setString(1, symbol)
+        prep1.executeUpdate
+        if (symbol == "HSI") {
+          val prep2 = _conn.prepareStatement("delete from daily_hsi_price")
+          prep2.executeUpdate
+        }
       }
     })
   }
@@ -64,7 +70,7 @@ object DBProcessor {
       try {
         val prep = _conn.prepareStatement("insert into market_data_daily_hk_stock (timestamp,instrument_id,open,high,low,close,volume) values (?,?,?,?,?,?,?) ")
 
-        lohlcbar.foreach {
+        lohlcbar.takeRight(Config.d1_req_num).foreach {
           bar =>
             {
               prep.setString(1, SUtil.convertDateTimeToStr(bar.dt))
