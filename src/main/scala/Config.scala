@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormat
 
 object Config {
 
-val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
+  val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   def readPropFile(propFileName: String) {
 
@@ -26,6 +26,7 @@ val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
         }
       })
 
+      source_ohlc_format = prop.getProperty("source_ohlc_format")
       h1_ohlc_folder = prop.getProperty("h1_ohlc_folder")
       m15_ohlc_folder = prop.getProperty("m15_ohlc_folder")
       d1_ohlc_file = prop.getProperty("d1_ohlc_file")
@@ -33,15 +34,22 @@ val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
       corpActionFile = prop.getProperty("corpActionFile")
       adjByCorpActRatio = prop.getProperty("adjByCorpActRatio").toBoolean
       corpActionRatioFile = prop.getProperty("corpActionRatioFile")
+      onlyInsertTheLatestBars = prop.getProperty("onlyInsertTheLatestBars").toBoolean
 
       jdbcConnStr.foreach(println)
       jdbcUser.foreach(println)
       jdbcPwd.foreach(println)
 
+      println(source_ohlc_format)
       println(h1_ohlc_folder)
       println(m15_ohlc_folder)
       println(d1_ohlc_file)
+      println(adjByCorpAct)
       println(corpActionFile)
+      println(adjByCorpActRatio)
+      println(corpActionRatioFile)
+      println(onlyInsertTheLatestBars)
+
     }
     catch {
       case e: Exception =>
@@ -62,6 +70,7 @@ val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
   //--------------------------------------------------
   // data
   //--------------------------------------------------
+  var source_ohlc_format = "blmg"
   var h1_ohlc_folder = ""
   var m15_ohlc_folder = ""
   var d1_ohlc_file = ""
@@ -84,5 +93,10 @@ val dfmt = DateTimeFormat.forPattern("yyyy-MM-dd")
   //--------------------------------------------------
   var adjByCorpActRatio = false
   var corpActionRatioFile = ""
+
+  //--------------------------------------------------
+  // req for maneki live or backtest are different
+  //--------------------------------------------------
+  var onlyInsertTheLatestBars = true
 
 }

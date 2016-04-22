@@ -26,12 +26,9 @@ object CorpActionAdj {
 
     val lines = scala.io.Source.fromFile(filepath).getLines.toList
 
-    var lsTup = List[(DateTime, String, Double)]()
-
-    lines.foreach(l => {
+    val lsTup = lines.map(l => {
       val csv = l.split(",").toList
-      val tup = (Config.dfmt.parseDateTime(csv(0)).withTime(23, 59, 59, 0), csv(1), csv(2).toDouble)
-      lsTup :+= tup
+      (Config.dfmt.parseDateTime(csv(0)).withTime(23, 59, 59, 0), csv(1), csv(2).toDouble)
     })
 
     lsTup.groupBy(_._2).map { case (sym, lstup) => { (sym, lstup.map(x => (x._1, x._3)).sortBy(_._1.getMillis)) } }.toMap
@@ -140,6 +137,7 @@ object DailyHourlyBarToDB {
       val mapCorpActAdj = if (Config.adjByCorpAct) CorpActionAdj.LoadCorpActForParticularDate(Config.corpActionFile, nextTradingDate) else Map[String, (Double, Double)]()
       val mapCorpActAdjRatio = if (Config.adjByCorpActRatio) CorpActionAdj.LoadCorpActRatio(Config.corpActionRatioFile) else Map[String, List[(DateTime, Double)]]()
 
+      println("finished loading mapCorpActAdjRatio")
       if (Config.adjByCorpAct) println(mapCorpActAdj)
       //--------------------------------------------------
 
@@ -150,19 +148,18 @@ object DailyHourlyBarToDB {
         System.exit(0)
       }
 
-
       else if (dataFreq == "d1") {
         // //--------------------------------------------------
         // // D1 (from folder with 1 symbol per file)
         // //--------------------------------------------------
         // val lsD1Files = SUtil.getFilesInDir(Config.d1_ohlc_folder)
-        // println(Config.d1_ohlc_folder)
+        // println("chkpt1")
         // // lsD1Files.foreach(println)
         //
-        // lsD1Files.foreach(d1file =>
-        //   {
+        // lsD1Files.foreach(d1file => {
         //     val lsdatalines = scala.io.Source.fromFile(d1file).getLines.toList
-        //     val lsohlcb = lsdatalines.map(DataFmtAdaptors.parseBlmgFmt1(_,true)).filter(_ != None).map(_.get).takeRight(Config.d1_req_num)
+        //     val lsohlcb_tmp = lsdatalines.map(DataFmtAdaptors.parseBlmgFmt1(_,true)).filter(_ != None).map(_.get)
+        //     val lsohlcb = if (Config.onlyInsertTheLatestBars) lsohlcb_tmp.takeRight(Config.d1_req_num) else lsohlcb_tmp
         //
         //     if (lsohlcb.length > 0) {
         //       DBProcessor.deleteMDDailyTable(lsohlcb.head.symbol)
@@ -187,7 +184,9 @@ object DailyHourlyBarToDB {
 
         lsD1Lines.foreach(line => {
 
-          DataFmtAdaptors.parseBlmgFmt1(line, true) match {
+          val parseFx = if (Config.source_ohlc_format == "blmg") DataFmtAdaptors.parseBlmgFmt1 _ else DataFmtAdaptors.parseCashOHLCFmt1 _
+
+          parseFx(line, true) match {
             case None => Unit
             case Some(ohlcb) => {
               val sym = ohlcb.symbol
@@ -222,11 +221,15 @@ object DailyHourlyBarToDB {
         // m15: so much code because need to aggregate hourly bars from 15 min bars
         //--------------------------------------------------
         val lsM15Files = SUtil.getFilesInDir(Config.m15_ohlc_folder)
-        println(Config.m15_ohlc_folder)
+        println("chkpt1")
 
         lsM15Files.foreach(m15file => {
           val lsdatalines = scala.io.Source.fromFile(m15file).getLines.toList
-          val lsM15ohlcb = lsdatalines.map(DataFmtAdaptors.parseBlmgFmt1(_, true)).filter(_ != None).map(_.get).takeRight(Config.m15_req_num)
+
+          val parseFx = if (Config.source_ohlc_format == "blmg") DataFmtAdaptors.parseBlmgFmt1 _ else DataFmtAdaptors.parseCashOHLCFmt1 _
+
+          val lsM15ohlcb_tmp = lsdatalines.map(parseFx(_, true)).filter(_ != None).map(_.get)
+          val lsM15ohlcb = if (Config.onlyInsertTheLatestBars) lsM15ohlcb_tmp.takeRight(Config.m15_req_num) else lsM15ohlcb_tmp
 
           var lsH1ohlcb = List[OHLCBar]()
           if (lsM15ohlcb.length > 0) {
@@ -284,11 +287,15 @@ object DailyHourlyBarToDB {
         // H1
         //--------------------------------------------------
         val lsH1Files = SUtil.getFilesInDir(Config.h1_ohlc_folder)
-        println(Config.h1_ohlc_folder)
+        println("chkpt1")
 
         lsH1Files.foreach(h1file => {
           val lsdatalines = scala.io.Source.fromFile(h1file).getLines.toList
-          val lsohlcb = lsdatalines.map(DataFmtAdaptors.parseBlmgFmt1(_, true)).filter(_ != None).map(_.get).takeRight(Config.h1_req_num)
+
+          val parseFx = if (Config.source_ohlc_format == "blmg") DataFmtAdaptors.parseBlmgFmt1 _ else DataFmtAdaptors.parseCashOHLCFmt1 _
+
+          val lsohlcb_tmp = lsdatalines.map(parseFx(_, true)).filter(_ != None).map(_.get)
+          val lsohlcb = if (Config.onlyInsertTheLatestBars) lsohlcb_tmp.takeRight(Config.h1_req_num) else lsohlcb_tmp
 
           if (lsohlcb.length > 0) {
             DBProcessor.deleteMDHourlyTable(lsohlcb.head.symbol)

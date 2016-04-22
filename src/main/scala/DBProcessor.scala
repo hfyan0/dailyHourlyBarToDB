@@ -70,7 +70,7 @@ object DBProcessor {
       try {
         val prep = _conn.prepareStatement("insert into market_data_daily_hk_stock (timestamp,instrument_id,open,high,low,close,volume) values (?,?,?,?,?,?,?) ")
 
-        lohlcbar.takeRight(Config.d1_req_num).foreach {
+        { if (Config.onlyInsertTheLatestBars) lohlcbar.takeRight(Config.d1_req_num) else lohlcbar }.foreach {
           bar =>
             {
               prep.setString(1, SUtil.convertDateTimeToStr(bar.dt))
