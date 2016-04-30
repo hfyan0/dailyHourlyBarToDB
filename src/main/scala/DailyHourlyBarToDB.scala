@@ -277,7 +277,9 @@ object DailyHourlyBarToDB {
             DBProcessor.deleteMDHourlyTable(lsH1ohlcb.head.symbol)
 
             val lsohlcb2 = if (Config.adjByCorpAct) CorpActionAdj.applyCorpActAdj(lsH1ohlcb, mapCorpActAdj) else lsH1ohlcb
-            val lsohlcb3 = if (Config.adjByCorpActRatio) CorpActionAdj.applyCorpActAdjRatio(lsohlcb2, mapCorpActAdjRatio) else lsohlcb2
+            // val lsohlcb3 = if (Config.adjByCorpActRatio) CorpActionAdj.applyCorpActAdjRatio(lsohlcb2, mapCorpActAdjRatio) else lsohlcb2
+            val lsohlcb3 = lsohlcb2
+            println("The program won't adjust the hourly ohlc (converted from m15) with the corporate action adjustment ratio for you. This is not a valid use case.")
             DBProcessor.batchInsertHourlyMD(lsohlcb3)
           }
         })
@@ -285,11 +287,13 @@ object DailyHourlyBarToDB {
       else if (dataFreq == "h1") {
         //--------------------------------------------------
         // H1
+        // assume 1 symbol per file
         //--------------------------------------------------
         val lsH1Files = SUtil.getFilesInDir(Config.h1_ohlc_folder)
         println("chkpt1")
 
         lsH1Files.foreach(h1file => {
+          println(h1file)
           val lsdatalines = scala.io.Source.fromFile(h1file).getLines.toList
 
           val parseFx = if (Config.source_ohlc_format == "blmg") DataFmtAdaptors.parseBlmgFmt1 _ else DataFmtAdaptors.parseCashOHLCFmt1 _
