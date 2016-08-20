@@ -1,0 +1,5 @@
+src/main/scala/DailyHourlyBarToDB.scala
+src/main/scala/DBProcessor.scala
+src/main/scala/Config.scala
+src/test/scala/DBProcessorSpec.scala
+src/test/scala/DailyHourlyBarSpec.scala

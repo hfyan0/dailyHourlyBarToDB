@@ -221,7 +221,6 @@ object DailyHourlyBarToDB {
         // m15: so much code because need to aggregate hourly bars from 15 min bars
         //--------------------------------------------------
         val lsM15Files = SUtil.getFilesInDir(Config.m15_ohlc_folder)
-        println("chkpt1")
 
         lsM15Files.foreach(m15file => {
           val lsdatalines = scala.io.Source.fromFile(m15file).getLines.toList
